@@ -92,3 +92,5 @@ GOM_bath_map = ggplot() +
   geom_polygon(data = world_map, aes(x = long, y = lat, group = group), fill = "hotpink") +
   coord_fixed(1.3, xlim = lon_bounds, ylim = lat_bounds, expand = F) +
   theme_bw()
+
+install.packages("sf")
