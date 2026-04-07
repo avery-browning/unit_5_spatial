@@ -89,8 +89,25 @@ head(bath_m)
 
 GOM_bath_map = ggplot() +
   geom_raster(data = bath_m, aes(x = x, y = y, fill = depth_m)) +
-  geom_polygon(data = world_map, aes(x = long, y = lat, group = group), fill = "hotpink") +
+  geom_polygon(data = world_map, aes(x = long, y = lat, group = group), 
+                                    fill = "gray", color = "black") +
+  scale_fill_gradient(colors = c("black", "darkblue", "lightblue"), 
+                      values = scales::rescale(c(-6000, -300, 0)), 
+                      name = "Depth (m") +
+  geom_contour(data = bath_m, aes(x = x, y = y, z = depth_m), breaks = c(-500), color = "red") +
+  geom_contour(data = bath_m, aes(x = x, y = y, z = depth_m), breaks = c(-250), color = "green") +
   coord_fixed(1.3, xlim = lon_bounds, ylim = lat_bounds, expand = F) +
   theme_bw()
 
 install.packages("sf")
+
+# --------------class start 2026-04-07
+
+ggsave(GOM_bath_map, filename = "figures/my_bathy_map.png")
+
+# combine bathymetry and chl
+
+bath_m_raster = marmap::as.raster(bath_m_raw)
+bath_m_raster
+chl_GOM_raster
+
