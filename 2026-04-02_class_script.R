@@ -93,9 +93,9 @@ GOM_bath_map = ggplot() +
   geom_raster(data = bath_m, aes(x = x, y = y, fill = depth_m)) +
   geom_polygon(data = world_map, aes(x = long, y = lat, group = group), 
                                     fill = "gray", color = "black") +
-  scale_fill_gradient(colors = c("black", "darkblue", "lightblue"), 
+  scale_fill_gradientn(colors = c("black", "darkblue", "lightblue"), 
                       values = scales::rescale(c(-6000, -300, 0)), 
-                      name = "Depth (m") +
+                      name = "Depth (m)") +
   geom_contour(data = bath_m, aes(x = x, y = y, z = depth_m), breaks = c(-500), color = "red") +
   geom_contour(data = bath_m, aes(x = x, y = y, z = depth_m), breaks = c(-250), color = "green") +
   coord_fixed(1.3, xlim = lon_bounds, ylim = lat_bounds, expand = F) +
@@ -138,12 +138,16 @@ eutro_chl_a = 1.67 # mg / mg^3 chl
 stack_df = stack_df %>%
   mutate(trophic_index = case_when(chl_a < oligo_chl_a ~ "oligotrophic",
                                   chl_a > oligo_chl_a & chl_a < eutro_chl_a ~ "mesotrophic",
-                                  chl_a > eutroph_chl_a ~ "eutrophic")) %>%
+                                  chl_a > eutro_chl_a ~ "eutrophic")) %>%
   mutate(trophic_index = as.factor(trophic_index))
 
 head(stack_df)
 summary(stack_df)
-table(stack$trophic_index)
+table(stack_df$trophic_index)
+
+# go back to video - need to rename col - layer?
+# stack_df = stack_df |> dplyr::rename(bath_m = layer)
+names(stack_df)
 
 ggplot() +
   geom_histogram(data = stack_df, aes(x = bath_m)) +
