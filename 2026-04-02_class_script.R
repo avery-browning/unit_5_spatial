@@ -111,3 +111,50 @@ bath_m_raster = marmap::as.raster(bath_m_raw)
 bath_m_raster
 chl_GOM_raster
 
+# get 2 raster objects to match up
+# force bath CRS in chl CRS
+
+bath_m_raster_chl_proj = raster::projectRaster(bath_m_raster, crs = crs(chl_GOM_raster))
+
+# get the squares to all line up 
+
+# names(bath_m)
+
+bath_layer_chl_dims = raster::resample(bath_m_raster_chl_proj, chl_GOM_raster)
+bath_layer_chl_dims
+chl_GOM_raster
+
+raster_stack = stack(chl_GOM_raster, bath_layer_chl_dims)
+
+# turn raster stack into a data.frame / tibble
+stack_df = data.frame(raster::rasterToPoints(raster_stack))
+head(stack_df)
+
+oligo_chl_a = 0.1 # mg / mg^3 chl
+eutro_chl_a = 1.67 # mg / mg^3 chl
+
+stack_df = stack_df %>%
+  mutate(trophic_index = case_when(chl_a < oligo_chl_a ~ "oligotrophic",
+                                  chl_a > oligo_chl_a & chl_a < eutro_chl_a ~ "mesotrophic",
+                                  chl_a > eutroph_chl_a ~ "eutrophic")) %>%
+  mutate(trophic_index = as.factor(trophic_index))
+
+head(stack_df)
+summary(stack_df)
+table(stack$trophic_index)
+
+ggplot() +
+  geom_histogram(data = stack_df, aes(x = bath_m)) +
+  facet_wrap(~trophic_index)
+
+ggplot() +
+  geom_boxplot(data = stack_df, aes(y = bath_m, x = trophic_index))
+
+trophic_map = ggplot() +
+  geom_raster(data = stack_df, aes(x=x, y=y, fill = trophic_index)) +
+  geom_polygon(data = world_map, aes(x = long, y = lat, group = group), 
+                                    fill = "gray", color = "black") + 
+  coord_fixed(1.3, xlim = long_bounds, ylim = lat_bounds, expand = F) +
+  theme_classic()
+
+tropic_map
