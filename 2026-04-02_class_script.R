@@ -15,7 +15,7 @@ library(dplyr)
 # resolution (the size of a single grid cell)
 
 # Winyah Bay - use L2 (final project)
-chl_raster = raster("unit_5_spatial/data/AQUA_MODIS.20020701_20250731.L3m.MC.CHL.chlor_a.9km.nc")
+chl_raster = raster("data/AQUA_MODIS.20020701_20250731.L3m.MC.CHL.chlor_a.9km.nc")
 class(chl_raster)
 chl_raster
 
@@ -65,13 +65,15 @@ GOM_chl_map = ggplot() +
                         oob = scales::squish, name = "log_10(chl_a)") +
   theme_bw()
 GOM_chl_map
-ggsave(GOM_chl_map, filename = "unit_5_spatial/figures/GOM_chl_map.png", height = 5, width = 9)
+ggsave(GOM_chl_map, filename = "figures/GOM_chl_map.png", height = 5, width = 9)
 
 # bathymetry
 
 lon_bounds = c(-72, -62)
 lat_bounds = c(39, 47)
 
+
+# start running again here - not connected to wifi currently
 bath_m_raw = marmap::getNOAA.bathy(lon1 = lon_bounds[1], lon2 = lon_bounds[2],
                                     lat1 = lat_bounds[1], lat2 = lat_bounds[2]
 )
