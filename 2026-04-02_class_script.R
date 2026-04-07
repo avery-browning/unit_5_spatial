@@ -157,4 +157,4 @@ trophic_map = ggplot() +
   coord_fixed(1.3, xlim = long_bounds, ylim = lat_bounds, expand = F) +
   theme_classic()
 
-tropic_map
+trophic_map
