@@ -46,14 +46,41 @@ head(USA_crit_hab_sf)
 crit_hab = rbind(USA_crit_hab_sf, CAN_crit_hab_sf)
 crit_hab
 
-long_bounds = c(-72, -54)
+lon_bounds = c(-72, -54)
 lat_bounds = c(39, 53)
 
 library(mapdata)
 
-world_map = map_data("wordHires", ylim = lat_bounds, xlim = long_bounds)
+world_map = map_data("worldHires", ylim = lat_bounds, xlim = lon_bounds)
+
+
+# come back to - scale error
 
 ggplot() +
-  geom_polygon(data = world_map, aes(x = lon, y = lat, group = group), fill = "black") +
-  geom_sf(data = crit_hab, aes(fill = country)) +
-  geom_point(data = carcass, aes(x = Longitude, y = Latitude, color = Carcass_position))
+  geom_raster(data = bath_m, aes(x = x, y = y, fill = depth_m)) +
+  geom_polygon(data = world_map, aes(x = long, y = lat, group = group), fill = "black") +
+  geom_sf(data = crit_hab, aes(fill = "blue")) +
+  geom_point(data = carcass, aes(x = Longitude, y = Latitude, color = Carcass_position)) +
+  scale_fill_gradientn(colors = c("black", "navy", "blue4", "lightblue"), values = scales::rescale(-5000, -3000, -300, 0),
+name = "Depth (m)") +
+  coord_sf(xlim = lon_bounds, ylim = lat_bounds) +
+  theme_classic()
+
+# only 1 whale carcass was found inside the critical habitat, others were outside those boundaries
+# mismatch on what we are protecting and where the whales actually are
+
+bath_m_raw = marmap::getNOAA.bathy(lon1 = lon_bounds[1] - 2,
+                                  lon2 = lon_bounds[2] + 2,
+                                  lat1 = lat_bounds[1] - 2,
+                                  lat2 = lat_bounds[2] + 2
+                                  )
+
+class(bath_m_raw)
+bathy_m_fortify = marmap::fortify.bathy(bath_m_raw)
+head(bathy_m_fortify)
+bath_m = bathy_m_fortify %>%
+  mutate(depth_m = ifelse(z>20, NA, z))
+tail(bath_m)
+
+# gg new scale will let you use multiple scales
+# gg plot layers geometry in the order that it was coded
